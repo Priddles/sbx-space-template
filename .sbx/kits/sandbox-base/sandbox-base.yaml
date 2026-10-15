@@ -1,0 +1,32 @@
+# syntax=docker/sandbox-kit:3
+#
+# Base for the Docker sandbox
+#
+# See:
+#   - https://docs.docker.com/ai/sandboxes/customize/author/build-an-agent
+#   - https://docs.docker.com/ai/sandboxes/customize/author/capabilities
+#   - https://github.com/docker/sbx-kits-contrib/blob/v3/claude-mixin/claude-mixin.yaml
+
+schemaVersion: "3"
+kind: workload
+displayName: Sandbox Base
+
+args:
+  # Although the sbx capability checks any username for conformance, most kits (including official
+  # Docker ones) hardcode the username as `agent`.
+  username:
+    default: "agent"
+    pattern: "^agent$"
+    buildArg: USERNAME
+
+capabilities:
+  - type: com.docker.sandbox/sbx@1
+
+  - type: com.docker.sandbox/network-policy@2
+    config:
+      runtime:
+        allow: []
+          # Examples to add maybe later:
+          # - raw.githubusercontent.com:443
+          # - go.dev:443
+          # - dl.google.com:443
