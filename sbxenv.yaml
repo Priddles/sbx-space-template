@@ -1,0 +1,20 @@
+# Docker sandbox environment file
+# See https://docs.docker.com/ai/sandboxes/configuration/environment-files
+
+schemaVersion: "1"
+name: unnamed-sandbox
+agent: sandbox-base
+workspace:
+  path: .
+  clone: false
+
+kits:
+  # Shared base with devcontainer
+  - .sbx/kits/sandbox-base
+
+  # Claude
+  - source: docker/sbx-kit-claude-mixin:latest
+    args:
+      # Uncomment and update once kit properly declares this arg.
+      # version: "2.1.300"
+  - docker/sbx-kit-claude-sbx-statusline:latest
