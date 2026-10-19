@@ -1,6 +1,4 @@
-#!/usr/bin/bash
 # Copied from: https://github.com/devcontainers/features/blob/main/src/common-utils/scripts/bash_theme_snippet.sh 
-
 __bash_prompt() {
     # shellcheck disable=SC2016
     local userpart='`export XIT=$? \

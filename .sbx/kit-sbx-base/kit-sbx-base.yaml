@@ -25,8 +25,13 @@ capabilities:
   - type: com.docker.sandbox/network-policy@2
     config:
       runtime:
-        allow: []
-          # Examples to add maybe later:
-          # - raw.githubusercontent.com:443
-          # - go.dev:443
-          # - dl.google.com:443
+        allow:
+          - deb.debian.org
+          - download.docker.com
+
+  - type: com.docker.sandbox/ssh-agent@1
+    optional: true
+    description: Use the user's SSH keys at runtime
+    config:
+      phase: [runtime]
+      authenticate: [git@github.com]

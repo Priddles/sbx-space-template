@@ -3,18 +3,31 @@
 
 schemaVersion: "1"
 name: unnamed-sandbox
-agent: sandbox-base
+agent: kit-sbx-base
+
 workspace:
   path: .
   clone: false
 
+args:
+  gitconfig:
+    default: $HOME/.config/git/config
+    description: Host gitconfig to copy into the sandbox
+
 kits:
   # Shared base with devcontainer
-  - .sbx/kits/sandbox-base
+  - .sbx/kit-sbx-base
+
+  # VS Code specific configuration
+  - .sbx/kit-vscode
 
   # Claude
-  - source: docker/sbx-kit-claude-mixin:latest
-    args:
-      # Uncomment and update once kit properly declares this arg.
-      # version: "2.1.300"
+  - docker/sbx-kit-claude-mixin:latest
   - docker/sbx-kit-claude-sbx-statusline:latest
+
+lifecycle:
+  postCreate:
+    - name: Sync git config
+      command: >-
+        sbx cp "${{ env.args.gitconfig }}" "$SBX_SANDBOX_NAME:/home/agent/.config/git/config"
+        && sbx exec -u root "$SBX_SANDBOX_NAME" chown agent:agent /home/agent/.config/git/config

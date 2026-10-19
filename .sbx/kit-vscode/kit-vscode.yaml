@@ -1,0 +1,16 @@
+# syntax=docker/sandbox-kit:3
+#
+# Configuration for SSH Remote extension in VS Code.
+
+schemaVersion: "3"
+kind: mixin
+displayName: VS Code
+
+capabilities:
+  - type: com.docker.sandbox/network-policy@2
+    config:
+      runtime:
+        allow:
+          - main.vscode-cdn.net:443
+          - update.code.visualstudio.com:443
+          - vscode.download.prss.microsoft.com:443

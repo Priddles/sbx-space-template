@@ -1,0 +1,15 @@
+# TODO: local override example file use
+
+additionalWorkspaces:
+  # Force readonly of override file as it can result in arbitrary code execution on host
+  - path: ${{ env.filedir }}/sbxenv.local.yaml
+    readOnly: true
+
+env:
+  # Path in sandbox where you have mounted your public key used to SSH in.
+  # SSH_PUBKEY_FILE: /tmp/authorized_key.pub
+
+ports:
+  # Change port to bind on host for SSH.
+  # - sandbox: 2222
+  #   host: 12222

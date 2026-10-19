@@ -1,9 +1,9 @@
 # Base image for devcontainer and the sandbox
 #
 # Based on:
+#  - https://docs.docker.com/ai/sandboxes/customize/author/build-an-agent/
 #  - https://github.com/devcontainers/images/blob/main/src/base-debian/.devcontainer/Dockerfile
 #  - https://github.com/devcontainers/features/blob/main/src/common-utils/main.sh
-#  - https://docs.docker.com/ai/sandboxes/customize/author/build-an-agent/
 
 FROM buildpack-deps:trixie-curl AS base
     # Non-root user
@@ -19,10 +19,16 @@ FROM buildpack-deps:trixie-curl AS base
     # Set locale so Unicode characters render correctly in locale-aware tools (e.g. tmux).
     ENV LANG=C.UTF-8
 
+    # Add docker package registry
+    RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor > /usr/share/keyrings/docker-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian trixie stable" > /etc/apt/sources.list.d/docker.list
+
     RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         && apt-get -y install --no-install-recommends \
         apt-transport-https \
+        bash-completion \
         bzip2 \
+        docker-ce-cli \
         git \
         htop \
         jq \
@@ -33,6 +39,7 @@ FROM buildpack-deps:trixie-curl AS base
         manpages \
         manpages-dev \
         ncdu \
+        openssh-client \
         procps \
         python3 \
         strace \
@@ -43,7 +50,7 @@ FROM buildpack-deps:trixie-curl AS base
         zip
 
     # Mainly done to upgrade packages to avoid security issues
-    RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    RUN export DEBIAN_FRONTEND=noninteractive \
         && apt-get upgrade -y \
         && apt-get autoremove -y \
         && apt-get clean -y \
@@ -68,7 +75,7 @@ FROM buildpack-deps:trixie-curl AS base
 
     # Create non-root user and setup sudo
     RUN groupadd ${GROUPNAME} \
-        && useradd -s /bin/bash --uid 1000 --gid ${GROUPNAME} -m ${USERNAME}
+        && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -m ${USERNAME}
     RUN mkdir -p /etc/sudoers.d \
         && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
         && chmod 0440 /etc/sudoers.d/${USERNAME}
@@ -80,20 +87,19 @@ FROM base AS user
     #
     # ~/workspace is the default mount location for sbx in clone mode.
     RUN mkdir -p \
-        /home/${USERNAME}/.config \
+        /home/${USERNAME}/.config /home/${USERNAME}/.config/git \
         /home/${USERNAME}/.local/bin /home/${USERNAME}/.local/share /home/${USERNAME}/.local/state \
         /home/${USERNAME}/workspace
 
     # Install nvm and node
     RUN curl -Sso- -L https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash
 
-FROM user AS devcontainer
     # Setup bash theme
     COPY --chown=${USERNAME}: ./files/bash_theme_snippet.sh /tmp/bash_theme_snippet.sh
-    RUN cat /tmp/bash_theme_snippet.sh > /home/${USERNAME}/.bashrc \
-        && chown ${USERNAME}:${GROUPNAME} /home/${USERNAME}/.bashrc \
+    RUN cat /tmp/bash_theme_snippet.sh >> /home/${USERNAME}/.bashrc \
         && rm /tmp/bash_theme_snippet.sh
 
+FROM user AS devcontainer
     ENTRYPOINT ["sleep", "infinity"]
     CMD []
 
