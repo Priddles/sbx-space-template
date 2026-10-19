@@ -58,6 +58,7 @@ FROM buildpack-deps:trixie-curl AS base
     RUN ln -sf python3 /usr/bin/python
 
     # Install go toolchain
+    # FIXME: go and gotestsum hard-coded to arm64 variant.
     RUN curl -Sso- -L https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz | tar -xzf - -C /usr/local \
         && echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/go.sh
     RUN mkdir -p /usr/local/gotestsum \
