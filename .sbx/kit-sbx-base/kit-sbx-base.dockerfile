@@ -49,6 +49,7 @@ FROM buildpack-deps:trixie-curl AS base
         python3-pip \
         ripgrep \
         rsync \
+        socat \
         strace \
         sudo \
         unzip \
@@ -73,10 +74,10 @@ FROM buildpack-deps:trixie-curl AS base
 
     # Install go toolchain
     # FIXME: go and gotestsum hard-coded to arm64 variant.
-    RUN curl -Sso- -L https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz | tar -xzf - -C /usr/local \
+    RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz | tar -xzf - -C /usr/local \
         && echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/go.sh
     RUN mkdir -p /usr/local/gotestsum \
-        && curl -Sso- -L https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_arm64.tar.gz \
+        && curl -fsSL https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_arm64.tar.gz \
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
 
@@ -96,15 +97,19 @@ FROM base AS user
     RUN mkdir -p \
         /home/${USERNAME}/.config /home/${USERNAME}/.config/git \
         /home/${USERNAME}/.local/bin /home/${USERNAME}/.local/share /home/${USERNAME}/.local/state \
+        /home/${USERNAME}/.ssh \
         /home/${USERNAME}/workspace
 
     # Install nvm and node
-    RUN curl -Sso- -L https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash
+    RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash
 
     # Setup bash theme
     COPY --chown=${USERNAME}: ./files/bash_theme_snippet.sh /tmp/bash_theme_snippet.sh
     RUN cat /tmp/bash_theme_snippet.sh >> /home/${USERNAME}/.bashrc \
         && rm /tmp/bash_theme_snippet.sh
+
+    # Add GitHub's SSH keys to known hosts
+    RUN curl -fsSL https://api.github.com/meta | jq -r '.ssh_keys[] | "github.com \(.)"' >> /home/${USERNAME}/.ssh/known_hosts
 
 FROM user AS devcontainer
     ENTRYPOINT ["sleep", "infinity"]

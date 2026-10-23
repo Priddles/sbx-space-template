@@ -33,10 +33,12 @@ capabilities:
           - registry-1.docker.io:443
           - download.docker.com:443
           - production.cloudfront.docker.com:443
+          # GitHub
+          - github.com:22
+          - github.com:443
 
   - type: com.docker.sandbox/ssh-agent@1
-    optional: true
-    description: Use the user's SSH keys at runtime
+    optional: false
     config:
       phase: [runtime]
       unrestricted: false
