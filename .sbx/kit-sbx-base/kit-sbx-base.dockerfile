@@ -28,7 +28,11 @@ FROM buildpack-deps:trixie-curl AS base
         apt-transport-https \
         bash-completion \
         bzip2 \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-ce \
         docker-ce-cli \
+        docker-compose-plugin \
         git \
         htop \
         jq \
@@ -42,6 +46,9 @@ FROM buildpack-deps:trixie-curl AS base
         openssh-client \
         procps \
         python3 \
+        python3-pip \
+        ripgrep \
+        rsync \
         strace \
         sudo \
         unzip \
@@ -49,7 +56,7 @@ FROM buildpack-deps:trixie-curl AS base
         xz-utils \
         zip
 
-    # Mainly done to upgrade packages to avoid security issues
+    # Mainly done to upgrade packages to avoid security issues.
     RUN export DEBIAN_FRONTEND=noninteractive \
         && apt-get upgrade -y \
         && apt-get autoremove -y \
@@ -73,9 +80,9 @@ FROM buildpack-deps:trixie-curl AS base
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
 
-    # Create non-root user and setup sudo
+    # Create non-root user and setup sudo.
     RUN groupadd ${GROUPNAME} \
-        && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -m ${USERNAME}
+        && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -G sudo,docker -m ${USERNAME}
     RUN mkdir -p /etc/sudoers.d \
         && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
         && chmod 0440 /etc/sudoers.d/${USERNAME}
@@ -105,6 +112,9 @@ FROM user AS devcontainer
 
 FROM user AS sandbox
     RUN mkdir -p /home/${USERNAME}/.docker/sandbox/locks
+
+    # Signal sandbox engine to start docker daemon.
+    LABEL com.docker.sandboxes.start-docker=true
 
     # SETUP: Update to use chosen harness.
     ENTRYPOINT ["bash", "-l"]
