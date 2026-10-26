@@ -27,7 +27,7 @@ capabilities:
       runtime:
         allow:
           # OS related
-          - deb.debian.org
+          - deb.debian.org:80
           # Docker
           - auth.docker.io:443
           - registry-1.docker.io:443
