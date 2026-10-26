@@ -4,8 +4,9 @@
   "name": "devcontainer",
 
   "build": {
-    "dockerfile": "../.sbx/kits/sandbox-base/sandbox-base.dockerfile",
-    "target": "devcontainer"
+    "dockerfile": "../.sbx/kit-sbx-base/kit-sbx-base.dockerfile",
+    "target": "devcontainer",
+    "args": { "USERNAME": "code" }
   },
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/w,type=bind,consistency=cached",

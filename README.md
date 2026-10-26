@@ -31,3 +31,4 @@ ssh $SANDBOX_NAME.sbx # SETUP: Fill with final sandbox name
 - Chromium + MCP
 - Spike: mount host git configs with new `mounts` override and include them
 - Document local overrides
+- Fix hardcoded arm64 in Dockerfile
