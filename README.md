@@ -9,15 +9,13 @@ Launch point for sandboxed workspace wrapper.
 After creating a project from this template, update the places below. Each one is marked with a
 `TEMPLATE:` comment, so `git grep -n TEMPLATE:` lists any that are left.
 
-| File                                        | Update                                                       |
-| ------------------------------------------- | ------------------------------------------------------------ |
-| `README.md`                                 | Title, description and sandbox name in the SSH command       |
-| `sbxenv.yaml`                               | Sandbox `name`                                               |
-| `.devcontainer/devcontainer.json`           | Devcontainer `name`                                          |
-| `sbx-space-template.code-workspace`         | Rename the file, and add the sub-repositories to `folders`   |
-| `.gitignore`                                | Ignore the sub-repositories cloned into the workspace        |
-| `CLAUDE.md`                                 | List the sub-repositories and where they are cloned          |
-| `.sbx/kit-sbx-base/kit-sbx-base.dockerfile` | Sandbox `ENTRYPOINT` for the chosen harness                  |
+| File                                        | Update                                                                  |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `README.md`                                 | Title, description, sandbox name in the SSH command, and clone commands |
+| `sbxenv.yaml`                               | Sandbox `name`                                                          |
+| `.devcontainer/devcontainer.json`           | Devcontainer `name`                                                     |
+| `sbx-space-template.code-workspace`         | Rename the file, and add each `src/<repo>` to `folders`                 |
+| `.sbx/kit-sbx-base/kit-sbx-base.dockerfile` | Sandbox `ENTRYPOINT` for the chosen harness                             |
 
 ## Quick Start
 
@@ -39,8 +37,27 @@ ssh $SANDBOX_NAME.sbx # TEMPLATE: Fill with final sandbox name
 | Name            | Description                                          |
 | --------------- | ---------------------------------------------------- |
 | `.devcontainer` | Devcontainer setup (uses same base image as sandbox) |
+| `.repos`        | Bare clones of the project's repositories (ignored)  |
 | `.sbx`          | Docker sandbox kits                                  |
+| `src`           | One worktree per repository (ignored)                |
 | `CLAUDE.md`     | Workspace-wide guidance for Claude Code              |
+| `commands.sh`   | Workspace commands                                   |
+
+## Repositories
+
+Each repository is cloned bare into `.repos`, with a worktree of its default branch in `src`:
+
+```sh
+./commands.sh clone <url> [<name>]
+```
+
+Clones start shallow and without file contents, which are fetched as needed. Run
+`git fetch --unshallow` in a worktree for full history.
+
+<!-- TEMPLATE: List the clone command for each of the project's repositories. -->
+
+How you use the worktrees from there is up to you: keep `src` on the default branch and add your
+own worktrees for feature work, or switch branches in `src` directly.
 
 ## Environment
 
@@ -58,6 +75,17 @@ are sandbox-only.
 Included conveniences: `fzf` (CTRL-R/CTRL-T/ALT-C), `zoxide` (`z`, `zi`), `direnv` (also loads
 `.env`), alias completion via `complete-alias`, and the aliases `dc` (`docker compose`), `g`, `ll`
 and `nr`.
+
+## Troubleshooting
+
+### Claude Code Remote Control disconnects
+
+If `/remote-control` reports "Remote Control disconnected" shortly after starting inside the sandbox,
+enable Remote Control in sbx on the host:
+
+```sh
+sbx settings set claude.remoteControl true
+```
 
 ## Todo
 

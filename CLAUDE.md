@@ -4,17 +4,25 @@
 
 This repository is a **workspace wrapper**: a small git repo of its own holding the environment
 config (`.sbx/`, `.devcontainer/`) and workspace-level docs. The project code lives in
-**independent git repositories cloned inside it**, each gitignored by the wrapper and each with its
-own history, branch, dependencies and build tooling.
+**independent git repositories**, each with its own history, branch, dependencies and build
+tooling, and all gitignored by the wrapper:
 
-<!-- TEMPLATE: List the sub-repositories and where they are cloned, e.g. `app/`, `infra/`. -->
+- `.repos/<name>.git` — bare clone of each repository, with no working tree.
+- `src/<name>` — a worktree of that repository, initially on its default branch. Work happens here.
 
-- Run git and build/test commands from inside the sub-repository that owns the code
-  (`git -C <repo> ...`), never from the wrapper root. A command run from the root **succeeds**
-  against the wrapper repo and reports its history instead, and `git log -- <repo>/foo.ts` from the
-  root returns nothing silently because the path isn't tracked there. If a git command returns
+Whether a `src/` worktree stays on the default branch or is switched for feature work is up to the
+user. Check its current branch rather than assuming it, and don't switch it or add worktrees unless
+asked.
+
+- Run git and build/test commands from inside the worktree that owns the code
+  (`git -C src/<name> ...`), never from the wrapper root. A command run from the root **succeeds**
+  against the wrapper repo and reports its history instead, and `git log -- src/<name>/foo.ts` from
+  the root returns nothing silently because the path isn't tracked there. If a git command returns
   empty or surprising output for a path, confirm you're scoped to the repo that owns that path
   before drawing any conclusion.
+- Clones start shallow, so a short `git log`, or `git blame` attributing everything to one commit,
+  may only reflect the clone depth. Run `git fetch --deepen=<n>` or `git fetch --unshallow` before
+  drawing conclusions from history.
 - Treat changes as repo-local: a change in one sub-repository does not affect the others, and
   there is no single repo spanning all of them.
 - The quality gate (format, lint, test) differs per repo. Never guess it; read the repo's own

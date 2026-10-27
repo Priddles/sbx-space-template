@@ -1,5 +1,5 @@
 {
-  // TEMPLATE: Rename this file for the project and add sub-repositories to folders
+  // TEMPLATE: Rename this file for the project and add each src/<repo> to folders
   "folders": [{ "path": "." }],
 
   "extensions": {

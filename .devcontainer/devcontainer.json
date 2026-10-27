@@ -15,8 +15,10 @@
     "ghcr.io/devcontainers/features/docker-in-docker:4": { "moby": false }
   },
 
-  "workspaceMount": "source=${localWorkspaceFolder},target=/w,type=bind,consistency=cached",
-  "workspaceFolder": "/w",
+  // Same path as on the host and in the sandbox, since git worktrees link to their repo by
+  // absolute path.
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind,consistency=cached",
+  "workspaceFolder": "${localWorkspaceFolder}",
 
   "waitFor": "postStartCommand",
 
