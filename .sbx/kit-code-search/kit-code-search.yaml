@@ -1,0 +1,32 @@
+# syntax=docker/sandbox-kit:3
+#
+# Harness-independent code search: a skill and context steering the agent towards cs, scc and the
+# searchcode MCP server, plus network access for searchcode. The scc and cs binaries are in the base
+# image, so they are also in the devcontainer. Each harness kit registers the MCP servers itself.
+
+schemaVersion: "3"
+kind: mixin
+displayName: Code Search
+description: >-
+  Use cs (ranked code search) and scc (line counts, complexity) instead of Grep, Glob, find and
+  wc -l whenever you explore, locate or size up code. Read the linked file before your first search.
+
+capabilities:
+  - type: com.docker.sandbox/network-policy@2
+    config:
+      runtime:
+        allow:
+          # searchcode MCP server (streamable HTTP)
+          - hosts: [api.searchcode.com:443]
+            methods: [GET, POST, DELETE]
+
+  - type: com.docker.sandbox/agent-skill@1
+    name: Code search
+    config:
+      path: /usr/share/kit-code-search/skills/code-search
+
+  # The profile belongs to the harness kit, so this is body-only. It stays on @1 because the
+  # statusline kit selects @1 and the two versions cannot compose.
+  - type: com.docker.sandbox/agent-context@1
+    config:
+      contentFile: ./kit-code-search-context.md

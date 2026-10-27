@@ -63,8 +63,8 @@ own worktrees for feature work, or switch branches in `src` directly.
 
 `sbx env run` and the devcontainer both build `.sbx/kit-sbx-base/kit-sbx-base.dockerfile`, so
 anything that must be the same in both belongs in that image, not in a lifecycle hook,
-`postCreateCommand` or init script. Only coding assistants (e.g. the Claude kits in `sbxenv.yaml`)
-are sandbox-only.
+`postCreateCommand` or init script. Only coding assistants and their tooling are sandbox-only, e.g. the Claude kits in `sbxenv.yaml` and
+`.sbx/kit-code-search`, which adds a skill preferring cs, scc and the searchcode MCP server (`.sbx/kit-claude` registers them).
 
 | Where                                   | What goes there                                                 |
 | --------------------------------------- | --------------------------------------------------------------- |
@@ -72,9 +72,9 @@ are sandbox-only.
 | `.sbx/kit-sbx-base/files/skel`          | Default dotfiles copied into the user's home                    |
 | `~/.bashrc`, `~/.bash_aliases`          | Personal shell config, never committed                          |
 
-Included conveniences: `fzf` (CTRL-R/CTRL-T/ALT-C), `zoxide` (`z`, `zi`), `direnv` (also loads
-`.env`), alias completion via `complete-alias`, and the aliases `dc` (`docker compose`), `g`, `ll`
-and `nr`.
+Included conveniences: `cs` and `scc` (code search and metrics), `fzf` (CTRL-R/CTRL-T/ALT-C),
+`zoxide` (`z`, `zi`), `direnv` (also loads `.env`), alias completion via `complete-alias`, and the
+aliases `dc` (`docker compose`), `g`, `ll` and `nr`.
 
 ## Troubleshooting
 
@@ -89,7 +89,6 @@ sbx settings set claude.remoteControl true
 
 ## Todo
 
-- SearchCode, cs, and scc kits
 - Chromium + MCP
 - Spike: mount host git configs with new `mounts` override and include them
 - Document local overrides

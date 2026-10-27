@@ -12,6 +12,8 @@ FROM buildpack-deps:trixie-curl AS base
     # Tool and runtime versions
     ARG GO_VERSION=1.27.2 \
         GOTESTSUM_VERSION=1.13.0 \
+        SCC_VERSION=4.1.0 \
+        CS_VERSION=3.2.0 \
         NVM_VERSION=0.40.8 \
         NODE_VERSION=lts/*
         # PYTHON3_VERSION = whatever is latest on apt
@@ -87,6 +89,24 @@ FROM buildpack-deps:trixie-curl AS base
         && curl -fsSL https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_${arch}.tar.gz \
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
+
+    # Install scc and cs (code counting and code search), checking each tarball against the
+    # checksums published with its release.
+    RUN set -eu; \
+        case "$(dpkg --print-architecture)" in \
+            amd64) arch=x86_64 ;; \
+            arm64) arch=arm64 ;; \
+            *) echo "unsupported architecture" >&2; exit 1 ;; \
+        esac; \
+        for tool in scc:${SCC_VERSION} cs:${CS_VERSION}; do \
+            name=${tool%%:*}; version=${tool##*:}; \
+            base=https://github.com/boyter/${name}/releases/download/v${version}; \
+            file=${name}_Linux_${arch}.tar.gz; \
+            curl -fsSLO ${base}/${file}; \
+            curl -fsSL ${base}/checksums.txt | grep " ${file}\$" | sha256sum -c -; \
+            tar -xzf ${file} -C /usr/local/bin ${name}; \
+            rm ${file}; \
+        done
 
     # Bash completion for aliases (e.g. `dc` completes as `docker compose`).
     ADD https://github.com/cykerway/complete-alias.git#${COMPLETE_ALIAS_VERSION} /usr/local/share/complete-alias

@@ -18,6 +18,9 @@ kits:
   # Shared base with devcontainer
   - .sbx/kit-sbx-base
 
+  # Boyter
+  - .sbx/kit-code-search
+
   # VS Code specific configuration
   - .sbx/kit-vscode
 

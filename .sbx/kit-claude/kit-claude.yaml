@@ -26,3 +26,14 @@ capabilities:
             mv "$tmp" "$f"
           user: agent
           description: Default Claude Code to bypass permissions without the warning dialog
+        # Registers the servers from .sbx/kit-code-search; cs and scc come from the base image.
+        - command: |
+            set -e
+            add() {
+              claude mcp get "$1" >/dev/null 2>&1 || claude mcp add --scope user "$@"
+            }
+            add searchcode --transport http https://api.searchcode.com/v1/mcp
+            add cs -- cs --mcp
+            add scc -- scc --mcp
+          user: agent
+          description: Register the searchcode, cs and scc MCP servers with Claude Code
