@@ -79,11 +79,12 @@ FROM buildpack-deps:trixie-curl AS base
     RUN ln -sf python3 /usr/bin/python
 
     # Install go toolchain
-    # FIXME: go and gotestsum hard-coded to arm64 variant.
-    RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-arm64.tar.gz | tar -xzf - -C /usr/local \
-        && echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/go.sh
-    RUN mkdir -p /usr/local/gotestsum \
-        && curl -fsSL https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_arm64.tar.gz \
+    # Go and gotestsum name their release archives by dpkg architecture (amd64, arm64).
+    RUN arch=$(dpkg --print-architecture) \
+        && curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-${arch}.tar.gz | tar -xzf - -C /usr/local \
+        && echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/go.sh \
+        && mkdir -p /usr/local/gotestsum \
+        && curl -fsSL https://github.com/gotestyourself/gotestsum/releases/download/v${GOTESTSUM_VERSION}/gotestsum_${GOTESTSUM_VERSION}_linux_${arch}.tar.gz \
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
 
@@ -106,8 +107,8 @@ FROM buildpack-deps:trixie-curl AS base
 
     # Create non-root user and setup sudo.
     RUN groupadd ${GROUPNAME} \
-        && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -G sudo,docker -m ${USERNAME}
-    RUN mkdir -p /etc/sudoers.d \
+        && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -G sudo,docker -m ${USERNAME} \
+        && mkdir -p /etc/sudoers.d \
         && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
         && chmod 0440 /etc/sudoers.d/${USERNAME}
 
