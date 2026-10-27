@@ -22,20 +22,29 @@ args:
 capabilities:
   - type: com.docker.sandbox/sbx@1
 
+  # Egress is deny-by-default and entries are as narrow as the workflow allows. Git mutations go
+  # over SSH; everything over HTTP is read-only.
   - type: com.docker.sandbox/network-policy@2
     config:
       runtime:
         allow:
-          # OS related
-          - deb.debian.org:80
-          # Docker
-          - auth.docker.io:443
-          - registry-1.docker.io:443
-          - download.docker.com:443
-          - production.cloudfront.docker.com:443
-          # GitHub
+          # Debian
+          - hosts: [deb.debian.org:80]
+            methods: [GET, HEAD]
+          # Docker, including Docker Hardened Images
+          - hosts:
+              - auth.docker.io:443
+              - dhi.io:443
+              - production.cloudfront.docker.com:443
+              - registry-1.docker.io:443
+            methods: [GET, HEAD]
+          # GitHub: SSH for git, read-only HTTP for https clones, raw files and container images
           - github.com:22
-          - github.com:443
+          - hosts:
+              - ghcr.io:443
+              - github.com:443
+              - raw.githubusercontent.com:443
+            methods: [GET, HEAD]
 
   - type: com.docker.sandbox/ssh-agent@1
     optional: false

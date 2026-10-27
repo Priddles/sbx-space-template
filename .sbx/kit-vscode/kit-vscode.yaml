@@ -11,6 +11,9 @@ capabilities:
     config:
       runtime:
         allow:
-          - main.vscode-cdn.net:443
-          - update.code.visualstudio.com:443
-          - vscode.download.prss.microsoft.com:443
+          # Downloads of the VS Code server and its web assets
+          - hosts:
+              - main.vscode-cdn.net:443
+              - update.code.visualstudio.com:443
+              - vscode.download.prss.microsoft.com:443
+            methods: [GET, HEAD]
