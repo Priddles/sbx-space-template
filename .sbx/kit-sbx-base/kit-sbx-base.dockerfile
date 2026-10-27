@@ -139,6 +139,21 @@ FROM user AS sandbox
     # Signal sandbox engine to start docker daemon.
     LABEL com.docker.sandboxes.start-docker=true
 
+    # Persistent environment file. Sourced by every shell so exports appended to it survive across
+    # commands. Completion scripts must never be added: it is sourced before every non-interactive
+    # command, where COMP_WORDS and friends are unset.
+    USER root
+    RUN touch /etc/sandbox-persistent.sh \
+        && chown ${USERNAME}:${GROUPNAME} /etc/sandbox-persistent.sh \
+        && echo '[ -r /etc/sandbox-persistent.sh ] && . /etc/sandbox-persistent.sh' \
+            | tee /etc/profile.d/sandbox-persistent.sh /home/${USERNAME}/.bashrc.sandbox >/dev/null \
+        && cat /home/${USERNAME}/.bashrc.sandbox >> /etc/bash.bashrc \
+        && cat /home/${USERNAME}/.bashrc.sandbox >> /home/${USERNAME}/.bashrc \
+        && rm /home/${USERNAME}/.bashrc.sandbox
+    USER ${USERNAME}
+    ENV BASH_ENV=/etc/sandbox-persistent.sh \
+        CLAUDE_ENV_FILE=/etc/sandbox-persistent.sh
+
     # TEMPLATE: Update to use chosen harness.
     ENTRYPOINT ["bash", "-l"]
     CMD []
