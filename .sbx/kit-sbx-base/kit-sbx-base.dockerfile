@@ -81,6 +81,11 @@ FROM buildpack-deps:trixie-curl AS base
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
 
+    # Customise bashrc
+    COPY --chmod=644 ./files/bash_theme_snippet.sh /etc/bash.bashrc.d/theme.sh
+    RUN sed -i 's/^\(\s*\)#\(alias \)/\1\2/' /etc/skel/.bashrc \
+        && printf '\n[ -r /etc/bash.bashrc.d/theme.sh ] && . /etc/bash.bashrc.d/theme.sh\n' >> /etc/skel/.bashrc
+
     # Create non-root user and setup sudo.
     RUN groupadd ${GROUPNAME} \
         && useradd -s /bin/bash -u 1000 -g ${GROUPNAME} -G sudo,docker -m ${USERNAME}
@@ -102,11 +107,6 @@ FROM base AS user
 
     # Install nvm and node
     RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash
-
-    # Setup bash theme
-    COPY --chown=${USERNAME}: ./files/bash_theme_snippet.sh /tmp/bash_theme_snippet.sh
-    RUN cat /tmp/bash_theme_snippet.sh >> /home/${USERNAME}/.bashrc \
-        && rm /tmp/bash_theme_snippet.sh
 
     # Add GitHub's SSH keys to known hosts
     RUN curl -fsSL https://api.github.com/meta | jq -r '.ssh_keys[] | "github.com \(.)"' >> /home/${USERNAME}/.ssh/known_hosts
