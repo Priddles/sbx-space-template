@@ -24,6 +24,7 @@ kits:
   # Claude
   - docker/sbx-kit-claude-mixin:latest
   - docker/sbx-kit-claude-sbx-statusline:latest
+  - .sbx/kit-claude
 
 lifecycle:
   postCreate:

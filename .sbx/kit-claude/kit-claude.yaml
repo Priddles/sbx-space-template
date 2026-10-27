@@ -1,0 +1,28 @@
+# syntax=docker/sandbox-kit:3
+#
+# Updates Claude Code and configures it for this workspace, merging our settings over the ones
+# seeded by the Claude kits. List it after those kits in sbxenv.yaml, so its install hooks run last.
+
+schemaVersion: "3"
+kind: mixin
+displayName: Claude
+
+requires: ["claude", "deb/jq"]
+
+capabilities:
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: claude update
+          user: agent
+          description: Update Claude Code to latest
+        - command: |
+            set -e
+            f=/home/agent/.claude/settings.json
+            [ -f "$f" ] || echo '{}' > "$f"
+            tmp=$(mktemp -p /home/agent/.claude)
+            jq '.permissions.defaultMode = "bypassPermissions"
+                | .skipDangerousModePermissionPrompt = true' "$f" > "$tmp"
+            mv "$tmp" "$f"
+          user: agent
+          description: Default Claude Code to bypass permissions without the warning dialog
