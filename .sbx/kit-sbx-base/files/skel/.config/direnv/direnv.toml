@@ -1,0 +1,3 @@
+[global]
+# Also load `.env` files once allowed with `direnv allow`.
+load_dotenv = true

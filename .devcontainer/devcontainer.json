@@ -1,12 +1,18 @@
 // For format details, see https://aka.ms/devcontainer.json.
 {
-  // SETUP: Update devcontainer name
+  // TEMPLATE: Update devcontainer name
   "name": "devcontainer",
 
   "build": {
     "dockerfile": "../.sbx/kit-sbx-base/kit-sbx-base.dockerfile",
     "target": "devcontainer",
     "args": { "USERNAME": "code" }
+  },
+
+  "features": {
+    // The image already has the Docker engine; this starts the daemon like the sandbox does.
+    // Moby is not packaged for trixie.
+    "ghcr.io/devcontainers/features/docker-in-docker:4": { "moby": false }
   },
 
   "workspaceMount": "source=${localWorkspaceFolder},target=/w,type=bind,consistency=cached",

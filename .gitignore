@@ -1,2 +1,4 @@
 # sbx: Override file for personal settings
 sbxenv.local.yaml
+
+# TEMPLATE: Ignore sub-repositories cloned into the workspace, e.g. /app/

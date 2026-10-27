@@ -15,6 +15,8 @@ FROM buildpack-deps:trixie-curl AS base
         NVM_VERSION=0.40.8 \
         NODE_VERSION=lts/*
         # PYTHON3_VERSION = whatever is latest on apt
+    ARG COMPLETE_ALIAS_VERSION=1.18.0
+    ARG TZ=Australia/Sydney
 
     # Set locale so Unicode characters render correctly in locale-aware tools (e.g. tmux).
     ENV LANG=C.UTF-8
@@ -33,6 +35,8 @@ FROM buildpack-deps:trixie-curl AS base
         docker-ce \
         docker-ce-cli \
         docker-compose-plugin \
+        direnv \
+        fzf \
         git \
         htop \
         jq \
@@ -55,7 +59,8 @@ FROM buildpack-deps:trixie-curl AS base
         unzip \
         vim-tiny \
         xz-utils \
-        zip
+        zip \
+        zoxide
 
     # Mainly done to upgrade packages to avoid security issues.
     RUN export DEBIAN_FRONTEND=noninteractive \
@@ -67,7 +72,8 @@ FROM buildpack-deps:trixie-curl AS base
     # Set up locale
     RUN localedef -i en_AU -c -f UTF-8 -A /usr/share/locale/locale.alias en_AU.UTF-8
     ENV LANG=en_AU.UTF-8 \
-        LC_ALL=en_AU.UTF-8
+        LC_ALL=en_AU.UTF-8 \
+        TZ=${TZ}
 
     # Alias python -> python3
     RUN ln -sf python3 /usr/bin/python
@@ -81,10 +87,22 @@ FROM buildpack-deps:trixie-curl AS base
         | tar -xzf - -C /usr/local/gotestsum \
         && ln -sf /usr/local/gotestsum/gotestsum /usr/local/go/bin/gotestsum
 
+    # Bash completion for aliases (e.g. `dc` completes as `docker compose`).
+    ADD https://github.com/cykerway/complete-alias.git#${COMPLETE_ALIAS_VERSION} /usr/local/share/complete-alias
+
     # Customise bashrc
-    COPY --chmod=644 ./files/bash_theme_snippet.sh /etc/bash.bashrc.d/theme.sh
-    RUN sed -i 's/^\(\s*\)#\(alias \)/\1\2/' /etc/skel/.bashrc \
-        && printf '\n[ -r /etc/bash.bashrc.d/theme.sh ] && . /etc/bash.bashrc.d/theme.sh\n' >> /etc/skel/.bashrc
+    #
+    # Interactive shell config lives in /etc/bash.bashrc.d so it is shared by every entrypoint and
+    # leaves ~/.bashrc and ~/.bash_aliases free for personal config. It is sourced at the end of
+    # the skeleton .bashrc, after bash-completion has loaded.
+    COPY --chmod=644 ./files/bash.bashrc.d/ /etc/bash.bashrc.d/
+    COPY ./files/skel/ /etc/skel/
+    RUN chmod 755 /etc/bash.bashrc.d \
+        && sed -i 's/^\(\s*\)#\(alias \)/\1\2/' /etc/skel/.bashrc \
+        && printf '\n%s\n' \
+            '# Image-wide interactive shell config' \
+            'for f in /etc/bash.bashrc.d/*.sh; do [ -r "$f" ] && . "$f"; done; unset f' \
+            >> /etc/skel/.bashrc
 
     # Create non-root user and setup sudo.
     RUN groupadd ${GROUPNAME} \
@@ -121,6 +139,6 @@ FROM user AS sandbox
     # Signal sandbox engine to start docker daemon.
     LABEL com.docker.sandboxes.start-docker=true
 
-    # SETUP: Update to use chosen harness.
+    # TEMPLATE: Update to use chosen harness.
     ENTRYPOINT ["bash", "-l"]
     CMD []

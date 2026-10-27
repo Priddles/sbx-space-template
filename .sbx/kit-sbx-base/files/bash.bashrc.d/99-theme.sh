@@ -1,3 +1,5 @@
+# Loads last: the xterm title DEBUG trap below would otherwise fire for every command run by the
+# remaining bash.bashrc.d files.
 # Copied from: https://github.com/devcontainers/features/blob/main/src/common-utils/scripts/bash_theme_snippet.sh 
 __bash_prompt() {
     # shellcheck disable=SC2016
