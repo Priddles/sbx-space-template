@@ -36,7 +36,7 @@ capabilities:
           - hosts:
               - auth.docker.io:443
               - dhi.io:443
-              - docs.docker.io:443
+              - docs.docker.com:443
               - production.cloudfront.docker.com:443
               - registry-1.docker.io:443
             methods: [GET, HEAD]

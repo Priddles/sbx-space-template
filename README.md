@@ -93,5 +93,4 @@ sbx settings set claude.remoteControl true
 
 ## Todo
 
-- Spike: mount host git configs with new `mounts` override and include them
 - Document local overrides
