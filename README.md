@@ -40,7 +40,7 @@ ssh $SANDBOX_NAME.sbx # TEMPLATE: Fill with final sandbox name
 | `.repos`        | Bare clones of the project's repositories (ignored)  |
 | `.sbx`          | Docker sandbox kits                                  |
 | `src`           | One worktree per repository (ignored)                |
-| `CLAUDE.md`     | Workspace-wide guidance for Claude Code              |
+| `CLAUDE.md`     | Workspace-wide guidance for the coding assistant     |
 | `commands.sh`   | Workspace commands                                   |
 
 ## Repositories
@@ -63,8 +63,9 @@ own worktrees for feature work, or switch branches in `src` directly.
 
 `sbx env run` and the devcontainer both build `.sbx/kit-sbx-base/kit-sbx-base.dockerfile`, so
 anything that must be the same in both belongs in that image, not in a lifecycle hook,
-`postCreateCommand` or init script. Only coding assistants and their tooling are sandbox-only, e.g. the Claude kits in `sbxenv.yaml` and
-`.sbx/kit-code-search`, which adds a skill preferring cs, scc and the searchcode MCP server (`.sbx/kit-claude` registers them).
+`postCreateCommand` or init script. Only coding assistants and their tooling are sandbox-only: the harness kits listed in `sbxenv.yaml`
+and `.sbx/kit-code-search`, which adds a skill preferring cs, scc and the searchcode MCP server (the
+harness kit registers them).
 
 | Where                                   | What goes there                                                 |
 | --------------------------------------- | --------------------------------------------------------------- |
@@ -75,6 +76,9 @@ anything that must be the same in both belongs in that image, not in a lifecycle
 Included conveniences: `cs` and `scc` (code search and metrics), `fzf` (CTRL-R/CTRL-T/ALT-C),
 `zoxide` (`z`, `zi`), `direnv` (also loads `.env`), alias completion via `complete-alias`, and the
 aliases `dc` (`docker compose`), `g`, `ll` and `nr`.
+
+The base image includes Chromium (`/usr/bin/chromium`). The harness kit registers the Chrome
+DevTools MCP server during sandbox install.
 
 ## Troubleshooting
 
@@ -89,6 +93,5 @@ sbx settings set claude.remoteControl true
 
 ## Todo
 
-- Chromium + MCP
 - Spike: mount host git configs with new `mounts` override and include them
 - Document local overrides

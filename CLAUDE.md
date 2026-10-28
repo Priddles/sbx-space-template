@@ -75,7 +75,9 @@ the comment" rule above covers the **local** why only.
    reputation that X depends on".
 9. **Drop "as for X" / "for the same reason as Y" cross-references.** If the reason matters here,
    state it plainly.
-10. **Wrap new comments at 100 columns.** When you change an existing comment, keep its current
+10. **Lead with the effect, not the config.** "Open only during install, to fetch X" beats listing
+    what stays closed. Absence in the config already shows that.
+11. **Wrap new comments at 100 columns.** When you change an existing comment, keep its current
     wrap width.
 
 When unsure, write the shorter comment. The user deletes long comments more readily than they add

@@ -10,12 +10,21 @@ displayName: Claude
 requires: ["claude", "deb/jq"]
 
 capabilities:
+  # Ensure npm registry is open while the install hooks run to fetch the Chrome DevTools MCP server.
+  - type: com.docker.sandbox/network-policy@2
+    config:
+      install:
+        allow:
+          - hosts: [registry.npmjs.org:443]
+            methods: [GET, HEAD]
+
   - type: com.docker.sandbox/lifecycle@1
     config:
       install:
         - command: claude update
           user: agent
           description: Update Claude Code to latest
+
         - command: |
             set -e
             f=/home/agent/.claude/settings.json
@@ -26,6 +35,7 @@ capabilities:
             mv "$tmp" "$f"
           user: agent
           description: Default Claude Code to bypass permissions without the warning dialog
+
         # Registers the servers from .sbx/kit-code-search; cs and scc come from the base image.
         - command: |
             set -e
@@ -37,3 +47,21 @@ capabilities:
             add scc -- scc --mcp
           user: agent
           description: Register the searchcode, cs and scc MCP servers with Claude Code
+
+        - command:
+            - bash
+            - -c
+            - set -e; . "$HOME/.nvm/nvm.sh"; npm install -g --ignore-scripts chrome-devtools-mcp@latest
+          user: agent
+          description: Install the Chrome DevTools MCP server
+
+        # Drives the base image's Chromium.
+        # --no-sandbox because Chromium's sandbox cannot start inside the container.
+        - command: |
+            set -e
+            # The name must precede --env, which is variadic and would swallow it.
+            claude mcp get chrome-devtools >/dev/null 2>&1 || claude mcp add --scope user chrome-devtools \
+              --env CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS=1 -- \
+              bash -c '. "$HOME/.nvm/nvm.sh" && exec chrome-devtools-mcp --executablePath=/usr/bin/chromium --headless --isolated --chromeArg=--no-sandbox'
+          user: agent
+          description: Register the Chrome DevTools MCP server with Claude Code

@@ -31,6 +31,7 @@ capabilities:
           # Debian
           - hosts: [deb.debian.org:80]
             methods: [GET, HEAD]
+
           # Docker, including Docker Hardened Images
           - hosts:
               - auth.docker.io:443
@@ -39,6 +40,7 @@ capabilities:
               - production.cloudfront.docker.com:443
               - registry-1.docker.io:443
             methods: [GET, HEAD]
+
           # GitHub: SSH for git, read-only HTTP for https clones, raw files and container images
           - github.com:22
           - hosts:

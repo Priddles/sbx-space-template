@@ -32,6 +32,7 @@ FROM buildpack-deps:trixie-curl AS base
         apt-transport-https \
         bash-completion \
         bzip2 \
+        chromium \
         containerd.io \
         docker-buildx-plugin \
         docker-ce \
