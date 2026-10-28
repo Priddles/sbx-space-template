@@ -59,7 +59,6 @@ capabilities:
         # --no-sandbox because Chromium's sandbox cannot start inside the container.
         - command: |
             set -e
-            # The name must precede --env, which is variadic and would swallow it.
             claude mcp get chrome-devtools >/dev/null 2>&1 || claude mcp add --scope user chrome-devtools \
               --env CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS=1 -- \
               bash -c '. "$HOME/.nvm/nvm.sh" && exec chrome-devtools-mcp --executablePath=/usr/bin/chromium --headless --isolated --chromeArg=--no-sandbox'
