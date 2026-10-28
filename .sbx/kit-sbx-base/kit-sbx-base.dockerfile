@@ -78,8 +78,9 @@ FROM buildpack-deps:trixie-curl AS base
         LC_ALL=en_AU.UTF-8 \
         TZ=${TZ}
 
-    # Alias python -> python3
-    RUN ln -sf python3 /usr/bin/python
+    # Alias python -> python3, vim.tiny -> vim
+    RUN ln -sf python3 /usr/bin/python \
+        && ln -sf vim.tiny /usr/bin/vim
 
     # Install go toolchain
     # Go and gotestsum name their release archives by dpkg architecture (amd64, arm64).
