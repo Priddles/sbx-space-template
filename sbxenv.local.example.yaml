@@ -1,15 +1,20 @@
-# TODO: local override example file use
+# Personal overrides for sbxenv.yaml. Copy to sbxenv.local.yaml and `make` merges it over
+# sbxenv.yaml automatically.
 
-additionalWorkspaces:
-  # Force readonly of override file as it can result in arbitrary code execution on host
-  - path: ${{ env.filedir }}/sbxenv.local.yaml
-    readOnly: true
+# args:
+#   gitconfig:
+#     default: $HOME/.dotfiles/gitconfig
 
-env:
-  # Path in sandbox where you have mounted your public key used to SSH in.
-  # SSH_PUBKEY_FILE: /tmp/authorized_key.pub
+# env:
+#   TZ: Australia/Melbourne
 
-ports:
-  # Change port to bind on host for SSH.
-  # - sandbox: 2222
-  #   host: 12222
+# kits:
+#   - ~/my-kits/kit-extra
+
+# additionalWorkspaces:
+#   - path: ~/notes
+#     readOnly: true
+
+# sandboxOptions:
+#   cpus: 8
+#   memory: 16g

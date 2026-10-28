@@ -22,10 +22,10 @@ After creating a project from this template, update the places below. Each one i
 Install [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/install) and run:
 
 ```sh
-sbx env run --force
+make run ARGS=--force
 ```
 
-to start the sandbox. You can then SSH in using:
+to start the sandbox (see [Local Overrides](#local-overrides)). You can then SSH in using:
 
 ```sh
 sbx setup ssh # Update ssh config to connect through sandboxd
@@ -41,14 +41,14 @@ ssh $SANDBOX_NAME.sbx # TEMPLATE: Fill with final sandbox name
 | `.sbx`          | Docker sandbox kits                                  |
 | `src`           | One worktree per repository (ignored)                |
 | `CLAUDE.md`     | Workspace-wide guidance for the coding assistant     |
-| `commands.sh`   | Workspace commands                                   |
+| `Makefile`      | Workspace commands and `sbx env` wrappers            |
 
 ## Repositories
 
 Each repository is cloned bare into `.repos`, with a worktree of its default branch in `src`:
 
 ```sh
-./commands.sh clone <url> [<name>]
+make clone URL=<url> [REPO=<name>]
 ```
 
 Clones start shallow and without file contents, which are fetched as needed. Run
@@ -80,6 +80,29 @@ aliases `dc` (`docker compose`), `g`, `ll` and `nr`.
 The base image includes Chromium (`/usr/bin/chromium`). The harness kit registers the Chrome
 DevTools MCP server during sandbox install.
 
+## Local Overrides
+
+Personal settings (env vars, extra kits or mounts, resources, host gitconfig path) go in
+`sbxenv.local.yaml`, which is git-ignored. Start from the example:
+
+```sh
+cp sbxenv.local.example.yaml sbxenv.local.yaml
+```
+
+`sbx` does not discover that file itself, so use the `Makefile`, which passes it after `sbxenv.yaml`
+whenever it exists. Maps merge by key, lists append and later scalars win.
+
+| Command          | Runs                                                    |
+| ---------------- | ------------------------------------------------------- |
+| `make plan`      | `sbx env plan` (show changes without applying)          |
+| `make create`    | `sbx env create` (create without attaching)             |
+| `make run`       | `sbx env run` (create if needed, then attach)           |
+| `make exec`      | `sbx env exec -- $CMD` (default `bash`)                 |
+| `make rm`        | `sbx env rm`                                            |
+
+Pass extra `sbx` flags with `ARGS`, e.g. `make run ARGS="--force --env-arg gitconfig=/x"` and
+`make exec CMD="npm test"`. Passing file paths makes `sbx` skip `~/.sbxenv.yaml`.
+
 ## Troubleshooting
 
 ### Claude Code Remote Control disconnects
@@ -91,6 +114,3 @@ enable Remote Control in sbx on the host:
 sbx settings set claude.remoteControl true
 ```
 
-## Todo
-
-- Document local overrides

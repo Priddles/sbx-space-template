@@ -6,7 +6,7 @@ name: unnamed-sandbox
 agent: kit-sbx-base
 
 workspace:
-  path: .
+  path: ${{ env.fileDir }}
   clone: false
 
 args:

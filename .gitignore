@@ -1,6 +1,6 @@
 # sbx: Override file for personal settings
 sbxenv.local.yaml
 
-# Sub-repositories: bare clones and their worktrees (see `./commands.sh clone`)
+# Sub-repositories: bare clones and their worktrees (see `make clone`)
 /.repos/
 /src/
